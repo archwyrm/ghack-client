@@ -142,17 +142,28 @@ class Game(object):
 
     def _handle_input(self):
         ch = self.scr.getch()
-        if ch == curses.KEY_UP:
+        # Cardinal directions
+        if ch == curses.KEY_UP or ch == ord('k'):
             self.move(0,-1)
-        elif ch == curses.KEY_DOWN:
+        elif ch == curses.KEY_DOWN or ch == ord('j'):
             self.move(0,1)
-        elif ch == curses.KEY_LEFT:
+        elif ch == curses.KEY_LEFT or ch == ord('h'):
             self.move(-1,0)
-        elif ch == curses.KEY_RIGHT:
+        elif ch == curses.KEY_RIGHT or ch == ord('l'):
             self.move(1,0)
+        # Diagonals
+        elif ch == ord('y'):
+            self.move(-1,-1)
+        elif ch == ord('u'):
+            self.move(1,-1)
+        elif ch == ord('b'):
+            self.move(-1,1)
+        elif ch == ord('n'):
+            self.move(1,1)
+        # Others
         elif ch == curses.KEY_RESIZE:
             self.create_hud()
-        elif ch == ord('h'):
+        elif ch == ord('g'):
             for entity in self.entities.values():
                 sys.stderr.write(str(entity.id) + str(entity.name)+str(entity.states)+"\n")
         elif ch == ord('q'):
