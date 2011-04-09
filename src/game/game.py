@@ -143,22 +143,22 @@ class Game(object):
     def _handle_input(self):
         ch = self.scr.getch()
         # Cardinal directions
-        if ch == curses.KEY_UP or ch == ord('k'):
+        if ch == curses.KEY_UP or ch == ord('k') or ch == ord('8'):
             self.move(0,-1)
-        elif ch == curses.KEY_DOWN or ch == ord('j'):
+        elif ch == curses.KEY_DOWN or ch == ord('j') or ch == ord('2'):
             self.move(0,1)
-        elif ch == curses.KEY_LEFT or ch == ord('h'):
+        elif ch == curses.KEY_LEFT or ch == ord('h') or ch == ord('4'):
             self.move(-1,0)
-        elif ch == curses.KEY_RIGHT or ch == ord('l'):
+        elif ch == curses.KEY_RIGHT or ch == ord('l') or ch == ord('6'):
             self.move(1,0)
         # Diagonals
-        elif ch == ord('y'):
+        elif ch == ord('y') or ch == ord('7'):
             self.move(-1,-1)
-        elif ch == ord('u'):
+        elif ch == ord('u') or ch == ord('9'):
             self.move(1,-1)
-        elif ch == ord('b'):
+        elif ch == ord('b') or ch == ord('1'):
             self.move(-1,1)
-        elif ch == ord('n'):
+        elif ch == ord('n') or ch == ord('3'):
             self.move(1,1)
         # Others
         elif ch == curses.KEY_RESIZE:
