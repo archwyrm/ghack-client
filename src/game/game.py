@@ -32,14 +32,14 @@ class Game(object):
         curses.cbreak()
         curses.start_color()
         self.scr.keypad(1)
-        
+
         curses.curs_set(0)
         self.scr.nodelay(1)	# Make getch() non-blocking
         curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLUE)
         curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLUE)
         self.create_hud()
-        
+
     def update(self, elapsed_seconds):
         """Runs every frame"""
         self.running = True
@@ -63,8 +63,8 @@ class Game(object):
             return
         self.entities[id].set_state(state_id, value)
         self.redraw()
-        
-    def get_player(self): 
+
+    def get_player(self):
         for entity in self.entities.values():
             if entity.name == "Player":
                 if entity.states.has_key('Position'):
@@ -74,7 +74,7 @@ class Game(object):
                                 if entity.states.has_key('KillCount'):
                                     return entity
         return None
-    
+
     def create_hud(self):
         y,x = self.scr.getmaxyx()
         try:
@@ -82,7 +82,7 @@ class Game(object):
             self.hudwin.nodelay(1)
         except curses.error:
             sys.stderr.write("HUD cannot be created!\n")
-        
+
     def draw_hud(self, player):
         health = player.states['Health']
         max_health = player.states['MaxHealth']
@@ -105,19 +105,19 @@ class Game(object):
             by,bx = self.scr.getbegyx()
             my,mx = self.scr.getmaxyx()
             return bx<x<mx and by<y<my
-        
+
         def restrict(x,lower,upper):
             return min(max(lower,x),upper)
-        
+
         offsety = offsetx = 0
         maxy, maxx = self.scr.getmaxyx()
         midy, midx = maxy/2, maxx/2
         player = self.get_player()
         if player:
-            pos = player.states['Position'] 
+            pos = player.states['Position']
             offsety,offsetx = midy-pos.y,midx-pos.x
-        
-        
+
+
         for entity in self.entities.values():
             #print(entity.name, entity.states)
             if entity.states.has_key('Position'):
@@ -134,10 +134,10 @@ class Game(object):
             self.scr.addstr(0,max(midx-9,0),"GHack SpiderForest",curses.color_pair(1))
         except curses.error:
             print("oh no!")
-            
+
         self.scr.noutrefresh()
         if player:
-            self.draw_hud(player) 
+            self.draw_hud(player)
         curses.doupdate()
 
     def _handle_input(self):
@@ -157,7 +157,7 @@ class Game(object):
                 sys.stderr.write(str(entity.id) + str(entity.name)+str(entity.states)+"\n")
         elif ch == ord('q'):
             self.running = False
-        
+
     def move(self, x, y):
         """Sending commands is weird. For now, just save it somewhere for
         the network to pick up
