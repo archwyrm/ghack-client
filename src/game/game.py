@@ -152,13 +152,13 @@ class Game(object):
         elif ch == curses.KEY_RIGHT or ch == ord('l') or ch == ord('6'):
             self.move(1,0)
         # Diagonals
-        elif ch == ord('y') or ch == ord('7'):
+        elif ch == curses.KEY_HOME or ch == ord('y') or ch == ord('7'):
             self.move(-1,-1)
-        elif ch == ord('u') or ch == ord('9'):
+        elif ch == curses.KEY_PPAGE or ch == ord('u') or ch == ord('9'):
             self.move(1,-1)
-        elif ch == ord('b') or ch == ord('1'):
+        elif ch == curses.KEY_NPAGE or ch == ord('b') or ch == ord('1'):
             self.move(-1,1)
-        elif ch == ord('n') or ch == ord('3'):
+        elif ch == curses.KEY_END or ch == ord('n') or ch == ord('3'):
             self.move(1,1)
         # Others
         elif ch == curses.KEY_RESIZE:
