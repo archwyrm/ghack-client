@@ -18,11 +18,29 @@ import os
 from debug import debug
 from objects import Entity, Vector
 
+class HealthBar:
+    def __init__(self, capacity = 10, width = 12):
+        self.cap = capacity
+        self.width = width
+        self.update(0)
+
+    def update(self, value):
+        self.value = value if value != None else 0
+        fill = int(round(value / float(self.cap) * (self.width - 2)))
+        self.bar = '[' + '#' * fill + ' ' * (self.width - 2 - fill) + ']'
+
+    def set_capacity(self, capacity):
+        self.cap = capacity if capacity != None else 0
+
+    def __str__(self):
+        return str(self.bar)
+
 class Game(object):
     def __init__(self, name):
         self.name = name
         self.entities = {}
         self.direction = Vector()
+        self.healthbar = HealthBar()
 
         self._init_curses()
 
@@ -38,6 +56,7 @@ class Game(object):
         curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLUE)
         curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLUE)
+        curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
         self.create_hud()
 
     def update(self, elapsed_seconds):
@@ -78,21 +97,21 @@ class Game(object):
     def create_hud(self):
         y,x = self.scr.getmaxyx()
         try:
-            self.hudwin = curses.newwin(5,20,1,x-21)
+            self.hudwin = curses.newwin(5,25,1,x-26)
             self.hudwin.nodelay(1)
         except curses.error:
             sys.stderr.write("HUD cannot be created!\n")
 
     def draw_hud(self, player):
-        health = player.states['Health']
-        max_health = player.states['MaxHealth']
+        self.healthbar.set_capacity(player.states['MaxHealth'])
+        self.healthbar.update(player.states['Health'])
         kills = player.states['KillCount']
         self.hudwin.erase()
         try:
             self.hudwin.addstr(1,1,"Health:",curses.color_pair(1) | curses.A_BOLD)
-            self.hudwin.addstr(1,8,"%s/%s"%(health,max_health),curses.color_pair(1))
+            self.hudwin.addstr(1,9,str(self.healthbar),curses.color_pair(4))
             self.hudwin.addstr(2,1,"Kills:",curses.color_pair(1)| curses.A_BOLD)
-            self.hudwin.addstr(2,8,str(kills),curses.color_pair(1))
+            self.hudwin.addstr(2,9,str(kills),curses.color_pair(1))
             self.hudwin.border()
         except curses.error:
             sys.stderr.write("HUD cannot be drawn!\n")
