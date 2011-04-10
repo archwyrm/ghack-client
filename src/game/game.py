@@ -20,20 +20,22 @@ from objects import Entity, Vector
 
 class HealthBar:
     def __init__(self, capacity = 10, width = 12):
-        self.cap = capacity
-        self.width = width
+        self.cap = max(1, capacity)
+        self.width = max(1, width)
         self.update(0)
 
     def update(self, value):
         self.value = value if value != None else 0
-        cap = 1 if self.cap < 1 else self.cap
-        val = self.value if self.value <= cap else cap
-        pct = val / float(cap)
-        fill = int(round(pct * (self.width - 2)))
+        cap = max(1, self.cap)
+        val = min(self.value, cap)
+        fill = int(round(val / float(cap) * (self.width - 2)))
         self.bar = '[' + '#' * fill + ' ' * (self.width - 2 - fill) + ']'
 
     def set_capacity(self, capacity):
         self.cap = capacity if capacity != None else 0
+
+    def set_width(self, width):
+        self.width = max(1, width)
 
     def __str__(self):
         return str(self.bar)
@@ -45,6 +47,7 @@ class Game(object):
         self.direction = Vector()
         self.healthbar = HealthBar()
         self.player = None
+        self.HUD_WIDTH = 30
         self.MSG_LINES = 5 # num lines for message area
         self.messages = []
 
@@ -60,9 +63,9 @@ class Game(object):
         curses.curs_set(0)
         self.scr.nodelay(1)	# Make getch() non-blocking
         curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
-        curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLUE)
-        curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLUE)
-        curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_BLUE)
         self.create_hud()
 
     def update(self, elapsed_seconds):
@@ -101,9 +104,9 @@ class Game(object):
     def create_hud(self):
         y,x = self.scr.getmaxyx()
         try:
-            self.hudwin = curses.newwin(5,25,1,x-26)
+            self.hudwin = curses.newwin(5,self.HUD_WIDTH,1,x-self.HUD_WIDTH-1)
             self.hudwin.nodelay(1)
-            self.msgwin = curses.newwin(self.MSG_LINES, x - 2, y - self.MSG_LINES - 1, 1)
+            self.msgwin = curses.newwin(self.MSG_LINES,x-2,y-self.MSG_LINES-1,1)
             self.msgwin.nodelay(1)
         except curses.error:
             sys.stderr.write("HUD cannot be created!\n")
@@ -114,18 +117,29 @@ class Game(object):
         kills = 0
 
         if 'MaxHealth' in player.states:
-            maxhp = player.states['MaxHealth']
+            maxhp = int(round(player.states['MaxHealth']))
         if 'Health' in player.states:
-            hp = player.states['Health']
+            hp = int(round(player.states['Health']))
         if 'KillCount' in player.states:
             kills = player.states['KillCount']
 
+        hpstrlen = len(str(hp) + str(maxhp)) + 1
+        pct = hp / float(maxhp)
+        hpcolor = 1
+        if pct < 0.33:
+            hpcolor = 3
+        elif pct < 0.66:
+            hpcolor = 2
+
         self.healthbar.set_capacity(maxhp)
         self.healthbar.update(hp)
+        self.healthbar.set_width(self.HUD_WIDTH - 11 - hpstrlen)
         self.hudwin.erase()
         try:
             self.hudwin.addstr(1,1,"Health:",curses.color_pair(1) | curses.A_BOLD)
-            self.hudwin.addstr(1,9,str(self.healthbar),curses.color_pair(1))
+            self.hudwin.addstr(1,9,str(hp),curses.color_pair(hpcolor))
+            self.hudwin.addstr(1,9+len(str(hp)),"/"+str(maxhp),curses.color_pair(1))
+            self.hudwin.addstr(1,10+hpstrlen,str(self.healthbar),curses.color_pair(1))
             self.hudwin.addstr(2,1,"Kills:",curses.color_pair(1)| curses.A_BOLD)
             self.hudwin.addstr(2,9,str(kills),curses.color_pair(1))
             self.hudwin.border()
@@ -174,11 +188,11 @@ class Game(object):
                 pos = entity.states['Position']
                 if entity.states.has_key('Asset'):
                     asset = entity.states['Asset']
-                    #self.scr.addstr(int(pos.y),int(pos.x), '⩕⎈☸⨳⩕⩖⩕@', curses.color_pair(2))
+                    #self.scr.addstr(int(pos.y),int(pos.x), '⩕⎈☸⨳⩕⩖⩕@', curses.color_pair(4))
                     posx = pos.x + offsetx
                     posy = pos.y + offsety
                     if in_bounds(posx,posy):
-                        self.scr.addstr(int(posy),int(posx), asset, curses.color_pair(2))
+                        self.scr.addstr(int(posy),int(posx), asset, curses.color_pair(4))
         self.scr.border()
         try:
             self.scr.addstr(0,max(midx-9,0),"GHack SpiderForest",curses.color_pair(1))
