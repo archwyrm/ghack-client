@@ -65,7 +65,9 @@ class Game(object):
         curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_YELLOW, curses.COLOR_BLACK)
         curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
-        curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_BLUE)
+        curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_BLACK)
+        curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_YELLOW)
+        curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_RED)
         self.create_hud()
 
     def update(self, elapsed_seconds):
@@ -123,13 +125,11 @@ class Game(object):
         if 'KillCount' in player.states:
             kills = player.states['KillCount']
 
-        hpstrlen = len(str(hp) + str(maxhp)) + 1
+        hplen = len(str(hp))
+        maxhplen = len(str(maxhp))
+        hpstrlen = maxhplen * 2 + 1
         pct = hp / float(maxhp)
-        hpcolor = 1
-        if pct < 0.33:
-            hpcolor = 3
-        elif pct < 0.66:
-            hpcolor = 2
+        hpcolor = 3 if pct < 0.33 else (2 if pct < 0.66 else 1)
 
         self.healthbar.set_capacity(maxhp)
         self.healthbar.update(hp)
@@ -137,8 +137,8 @@ class Game(object):
         self.hudwin.erase()
         try:
             self.hudwin.addstr(1,1,"Health:",curses.color_pair(1) | curses.A_BOLD)
-            self.hudwin.addstr(1,9,str(hp),curses.color_pair(hpcolor))
-            self.hudwin.addstr(1,9+len(str(hp)),"/"+str(maxhp),curses.color_pair(1))
+            self.hudwin.addstr(1,9+maxhplen-hplen,str(hp),curses.color_pair(hpcolor))
+            self.hudwin.addstr(1,9+maxhplen,"/"+str(maxhp),curses.color_pair(1))
             self.hudwin.addstr(1,10+hpstrlen,str(self.healthbar),curses.color_pair(1))
             self.hudwin.addstr(2,1,"Kills:",curses.color_pair(1)| curses.A_BOLD)
             self.hudwin.addstr(2,9,str(kills),curses.color_pair(1))
@@ -191,8 +191,14 @@ class Game(object):
                     #self.scr.addstr(int(pos.y),int(pos.x), '⩕⎈☸⨳⩕⩖⩕@', curses.color_pair(4))
                     posx = pos.x + offsetx
                     posy = pos.y + offsety
+                    color = 4
+                    if 'Health' in entity.states and 'MaxHealth' in entity.states:
+                        hp = entity.states['Health']
+                        maxhp = entity.states['MaxHealth']
+                        pct = hp / float(maxhp)
+                        color = 6 if pct < 0.33 else (5 if pct < 0.66 else 4)
                     if in_bounds(posx,posy):
-                        self.scr.addstr(int(posy),int(posx), asset, curses.color_pair(4))
+                        self.scr.addstr(int(posy),int(posx), asset, curses.color_pair(color))
         self.scr.border()
         try:
             self.scr.addstr(0,max(midx-9,0),"GHack SpiderForest",curses.color_pair(1))
