@@ -26,7 +26,10 @@ class HealthBar:
 
     def update(self, value):
         self.value = value if value != None else 0
-        fill = int(round(value / float(self.cap) * (self.width - 2)))
+        cap = 1 if self.cap < 1 else self.cap
+        val = self.value if self.value <= cap else cap
+        pct = val / float(cap)
+        fill = int(round(pct * (self.width - 2)))
         self.bar = '[' + '#' * fill + ' ' * (self.width - 2 - fill) + ']'
 
     def set_capacity(self, capacity):
@@ -42,7 +45,7 @@ class Game(object):
         self.direction = Vector()
         self.healthbar = HealthBar()
         self.player = None
-        self.MSG_LINES = 3 # num lines for message area
+        self.MSG_LINES = 5 # num lines for message area
         self.messages = []
 
         self._init_curses()
