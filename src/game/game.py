@@ -41,6 +41,7 @@ class Game(object):
         self.entities = {}
         self.direction = Vector()
         self.healthbar = HealthBar()
+        self.player = None
 
         self._init_curses()
 
@@ -83,15 +84,13 @@ class Game(object):
         self.entities[id].set_state(state_id, value)
         self.redraw()
 
+    def assign_control(self, uid, revoked):
+        self.player = uid if not revoked else None
+
     def get_player(self):
-        for entity in self.entities.values():
-            if entity.name == "Player":
-                if entity.states.has_key('Position'):
-                    if entity.states.has_key('Health'):
-                        if entity.states.has_key('MaxHealth'):
-                            if entity.states.has_key('Asset'):
-                                if entity.states.has_key('KillCount'):
-                                    return entity
+        if self.player != None:
+            if self.entities.has_key(self.player):
+                return self.entities[self.player]
         return None
 
     def create_hud(self):
@@ -103,9 +102,18 @@ class Game(object):
             sys.stderr.write("HUD cannot be created!\n")
 
     def draw_hud(self, player):
-        self.healthbar.set_capacity(player.states['MaxHealth'])
-        self.healthbar.update(player.states['Health'])
-        kills = player.states['KillCount']
+        hp = maxhp = 1
+        kills = 0
+
+        if 'MaxHealth' in player.states:
+            maxhp = player.states['MaxHealth']
+        if 'Health' in player.states:
+            hp = player.states['Health']
+        if 'KillCount' in player.states:
+            kills = player.states['KillCount']
+
+        self.healthbar.set_capacity(maxhp)
+        self.healthbar.update(hp)
         self.hudwin.erase()
         try:
             self.hudwin.addstr(1,1,"Health:",curses.color_pair(1) | curses.A_BOLD)
@@ -132,7 +140,7 @@ class Game(object):
         maxy, maxx = self.scr.getmaxyx()
         midy, midx = maxy/2, maxx/2
         player = self.get_player()
-        if player:
+        if player and 'Position' in player.states:
             pos = player.states['Position']
             offsety,offsetx = midy-pos.y,midx-pos.x
 

@@ -160,4 +160,5 @@ class GameHandler(Handler):
         client.game.update_entity(**args)
 
     def handle_assign_control(self, client, assign_control):
-        pass
+        args = {'uid': assign_control.uid, 'revoked': assign_control.revoked}
+        client.game.assign_control(**args)
