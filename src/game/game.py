@@ -42,6 +42,8 @@ class Game(object):
         self.direction = Vector()
         self.healthbar = HealthBar()
         self.player = None
+        self.MSG_LINES = 3 # num lines for message area
+        self.messages = []
 
         self._init_curses()
 
@@ -98,8 +100,11 @@ class Game(object):
         try:
             self.hudwin = curses.newwin(5,25,1,x-26)
             self.hudwin.nodelay(1)
+            self.msgwin = curses.newwin(self.MSG_LINES, x - 2, y - self.MSG_LINES - 1, 1)
+            self.msgwin.nodelay(1)
         except curses.error:
             sys.stderr.write("HUD cannot be created!\n")
+        self.add_message("You have entered Spider Forest") # :D
 
     def draw_hud(self, player):
         hp = maxhp = 1
@@ -117,13 +122,28 @@ class Game(object):
         self.hudwin.erase()
         try:
             self.hudwin.addstr(1,1,"Health:",curses.color_pair(1) | curses.A_BOLD)
-            self.hudwin.addstr(1,9,str(self.healthbar),curses.color_pair(4))
+            self.hudwin.addstr(1,9,str(self.healthbar),curses.color_pair(1))
             self.hudwin.addstr(2,1,"Kills:",curses.color_pair(1)| curses.A_BOLD)
             self.hudwin.addstr(2,9,str(kills),curses.color_pair(1))
             self.hudwin.border()
         except curses.error:
             sys.stderr.write("HUD cannot be drawn!\n")
         self.hudwin.noutrefresh()
+
+    def draw_messages(self):
+        self.msgwin.erase()
+        try:
+            for i, msg in enumerate(self.messages):
+                y = self.MSG_LINES - i - 1
+                self.msgwin.addstr(y, 0, msg, curses.color_pair(1))
+        except curses.error:
+            sys.stderr.write("Failed to draw message area\n")
+        self.msgwin.noutrefresh()
+
+    def add_message(self, msg):
+        self.messages.insert(0, msg)
+        if len(self.messages) > self.MSG_LINES:
+            self.messages.pop()
 
     def redraw(self):
         #print "%d Entities:" % len(self.entities)
@@ -165,6 +185,7 @@ class Game(object):
         self.scr.noutrefresh()
         if player:
             self.draw_hud(player)
+        self.draw_messages()
         curses.doupdate()
 
     def _handle_input(self):
