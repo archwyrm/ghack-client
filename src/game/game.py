@@ -198,7 +198,11 @@ class Game(object):
                         pct = hp / float(maxhp)
                         color = 6 if pct < 0.33 else (5 if pct < 0.66 else 4)
                     if in_bounds(posx,posy):
-                        self.scr.addstr(int(posy),int(posx), asset, curses.color_pair(color))
+                        try:
+                            self.scr.addstr(int(posy),int(posx), asset, curses.color_pair(color))
+                        except curses.error:
+                            sys.stderr.write("Failed to draw asset %s at y,x=%d,%d\n" %
+                                (asset, int(posy), int(posx)))
         self.scr.border()
         try:
             self.scr.addstr(0,max(midx-9,0),"GHack SpiderForest",curses.color_pair(1))
