@@ -97,6 +97,9 @@ class Game(object):
     def assign_control(self, uid, revoked):
         self.player = uid if not revoked else None
 
+    def entity_death(self, uid, name):
+        self.add_message("%s died!" % name)
+
     def get_player(self):
         if self.player != None:
             if self.entities.has_key(self.player):
