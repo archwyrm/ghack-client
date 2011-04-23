@@ -100,6 +100,9 @@ class Game(object):
     def entity_death(self, uid, name):
         self.add_message("%s died!" % name)
 
+    def combat_hit(self, auid, aname, vuid, vname, damage):
+        self.add_message("%s hit %s for %d damage!" % (aname, vname, damage))
+
     def get_player(self):
         if self.player != None:
             if self.entities.has_key(self.player):
