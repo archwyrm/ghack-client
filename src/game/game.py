@@ -50,6 +50,7 @@ class Game(object):
         self.HUD_WIDTH = 30
         self.MSG_LINES = 5 # num lines for message area
         self.messages = []
+        self.kills = 0
 
         self._init_curses()
 
@@ -97,8 +98,12 @@ class Game(object):
     def assign_control(self, uid, revoked):
         self.player = uid if not revoked else None
 
-    def entity_death(self, uid, name):
-        self.add_message("%s died!" % name)
+    def entity_death(self, uid, name, kuid, kname):
+        if kuid == self.player:
+            self.add_message("You killed %s!" % name)
+            self.kills += 1
+        else:
+            self.add_message("%s was killed by %s!" % (name, kname))
 
     def combat_hit(self, auid, aname, vuid, vname, damage):
         self.add_message("%s hit %s for %d damage!" % (aname, vname, damage))
@@ -122,14 +127,11 @@ class Game(object):
 
     def draw_hud(self, player):
         hp = maxhp = 1
-        kills = 0
 
         if 'MaxHealth' in player.states:
             maxhp = int(round(player.states['MaxHealth']))
         if 'Health' in player.states:
             hp = int(round(player.states['Health']))
-        if 'KillCount' in player.states:
-            kills = player.states['KillCount']
 
         hplen = len(str(hp))
         maxhplen = len(str(maxhp))
@@ -147,7 +149,7 @@ class Game(object):
             self.hudwin.addstr(1,9+maxhplen,"/"+str(maxhp),curses.color_pair(1))
             self.hudwin.addstr(1,10+hpstrlen,str(self.healthbar),curses.color_pair(1))
             self.hudwin.addstr(2,1,"Kills:",curses.color_pair(1)| curses.A_BOLD)
-            self.hudwin.addstr(2,9,str(kills),curses.color_pair(1))
+            self.hudwin.addstr(2,9,str(self.kills),curses.color_pair(1))
             self.hudwin.border()
         except curses.error:
             sys.stderr.write("HUD cannot be drawn!\n")

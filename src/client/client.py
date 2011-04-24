@@ -166,7 +166,8 @@ class GameHandler(Handler):
         client.game.assign_control(**args)
 
     def handle_entity_death(self, client, entity_death):
-        args = {'uid': entity_death.uid, 'name': entity_death.name}
+        args = {'uid': entity_death.uid, 'name': entity_death.name,
+                'kuid': entity_death.killer_uid, 'kname': entity_death.killer_name}
         client.game.entity_death(**args)
 
     def handle_combat_hit(self, client, combat_hit):
