@@ -70,6 +70,8 @@ message Message {
         UPDATESTATE = 7;
         MOVE = 8;
         ASSIGNCONTROL = 9;
+        ENTITYDEATH = 10;
+        COMBATHIT = 11;
     }
 
     // Type of message that this contains
@@ -87,6 +89,8 @@ message Message {
     optional Login login = 18;
     optional LoginResult login_result = 19;
     optional AssignControl assign_control = 20;
+    optional EntityDeath entity_death = 21;
+    optional CombatHit combat_hit = 22;
 }
 
 message Connect {
@@ -188,4 +192,21 @@ message AssignControl {
     required int32 uid = 1;
     // If set, and set to true, control of the entity has been revoked
     optional bool revoked = 2;
+}
+
+// Signifies that an entity died
+message EntityDeath {
+    required int32 uid = 1;
+    optional string name = 2;
+    optional int32 killer_uid = 3;
+    optional string killer_name = 4;
+}
+
+// Represents damage dealt in combat
+message CombatHit {
+    required int32 attacker_uid = 1;
+    optional string attacker_name = 2;
+    required int32 victim_uid = 3;
+    optional string victim_name = 4;
+    required float damage = 5;
 }

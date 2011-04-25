@@ -141,6 +141,8 @@ class GameHandler(Handler):
             ghack_pb2.Message.REMOVEENTITY: lambda h: h.handle_remove,
             ghack_pb2.Message.UPDATESTATE: lambda h: h.handle_update,
             ghack_pb2.Message.ASSIGNCONTROL: lambda h: h.handle_assign_control,
+            ghack_pb2.Message.ENTITYDEATH: lambda h: h.handle_entity_death,
+            ghack_pb2.Message.COMBATHIT: lambda h: h.handle_combat_hit,
         }
     def handle_add(self, client, add):
         args = {'id': add.id}
@@ -162,3 +164,14 @@ class GameHandler(Handler):
     def handle_assign_control(self, client, assign_control):
         args = {'uid': assign_control.uid, 'revoked': assign_control.revoked}
         client.game.assign_control(**args)
+
+    def handle_entity_death(self, client, entity_death):
+        args = {'uid': entity_death.uid, 'name': entity_death.name,
+                'kuid': entity_death.killer_uid, 'kname': entity_death.killer_name}
+        client.game.entity_death(**args)
+
+    def handle_combat_hit(self, client, combat_hit):
+        args = {'auid': combat_hit.attacker_uid, 'aname': combat_hit.attacker_name,
+                'vuid': combat_hit.victim_uid, 'vname': combat_hit.victim_name,
+                'damage': combat_hit.damage}
+        client.game.combat_hit(**args)

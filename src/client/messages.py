@@ -68,6 +68,8 @@ MESSAGE_TYPES = {
         ghack_pb2.Message.UPDATESTATE: 'update_state',
         ghack_pb2.Message.MOVE: 'move',
         ghack_pb2.Message.ASSIGNCONTROL: 'assign_control',
+        ghack_pb2.Message.ENTITYDEATH: 'entity_death',
+        ghack_pb2.Message.COMBATHIT: 'combat_hit',
     }
 
 STATE_TYPES = {
